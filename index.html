@@ -27,6 +27,29 @@
 		</form>
 	</div>
 	<br><br>
+	<div style="width: 400px;">
+		<form id="formulario-processador">
+			<label for="ciclo-segundo">Ciclos por segundo</label>
+			<input type="number" class="config" id="ciclo-segundo"><br>
+			<label for="alg-escalonamento">Algoritmos de Escalonamento</label>
+			<select id="alg-escalonamento" class="config">
+				<option value="fifo">First-in First-out</option>
+				<option value="sjf">Shortest Job First</option>
+				<option value="srt">Shortest Remaining Time</option>
+				<option value="loteria">Algoritmo Loteria</option>
+				<option value="rr">Round-Robin</option>
+				<option value="all">Todos</option>
+			</select>
+			<br>
+		</form>
+	</div>
+	<br><br>
+	<div style="width: 400px;">
+		<button id="run">Executar</button>
+		<button id="step">Próximo Passo</button>
+		<button id="restart">Reiniciar</button>
+	</div>
+	<br><br>
 	<div>
 		<table>
 			<thead>
@@ -45,57 +68,11 @@
 				</tr>
 			</thead>	
 			<tbody id="novo-processo">
-				<tr>
-					<td>-></td>
-					<td>1</td>
-					<td>Processo 1</td>
-					<td>123</td>
-					<td>1300</td>
-					<td>2</td>
-					<td>0</td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td>
-						<button>Editar</button>
-						<button>Remover</button>
-					</td>
-				</tr>
-				<tr>
-					<td></td>
-					<td>2</td>
-					<td>Processo 2</td>
-					<td>432</td>
-					<td>1300</td>
-					<td>2</td>
-					<td>0</td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td>
-						<button>Editar</button>
-						<button>Remover</button>
-					</td>
-				</tr>
-				<tr>
-					<td></td>
-					<td>3</td>
-					<td>Processo 3</td>
-					<td>112</td>
-					<td>1300</td>
-					<td>2</td>
-					<td>0</td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td>
-						<button>Editar</button>
-						<button>Remover</button>
-					</td>
-				</tr>
+				
 			</tbody>
 		</table>
 	</div>
+
 	
 
 

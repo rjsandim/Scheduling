@@ -1,6 +1,8 @@
 $(document).ready(function() {
 
 	var processos = [];
+	var config = {};
+	var time = 0;
 
 	$("#adicionar-processo").click(function() {
 
@@ -20,66 +22,95 @@ $(document).ready(function() {
 		}
 	});
 
-	function existeProcesso(Processo) {
+	var existeProcesso = function(Processo) {
 		return Processo.nome.length && Processo.tamanho.length && Processo.inicia.length;
 	}
 
 
-	function atualizarTabelaDeProcessos(Processo) {
+	var atualizarTabelaDeProcessos = function(Processo) {
 
-		var itemTabela = "<tr><td></td>";
+		var itemTabela = "<tr>";
 		itemTabela += "<td>"+ Processo.index +"</td>";
 		itemTabela += "<td>"+ Processo.nome +"</td>";
 		itemTabela += "<td>"+ Processo.id +"</td>";
 		itemTabela += "<td>"+ Processo.tamanho +"</td>";
 		itemTabela += "<td>"+ Processo.prioridade +"</td>";
 		itemTabela += "<td>"+ Processo.inicia +"</td>";
-		itemTabela += "<td></td><td></td><td></td>";
 		itemTabela += "<td><button>Editar</button> <button>Remover</button></td></tr>";
-		
+
+		var nomeDosAlgoritmos = {
+			fifo: 'FIFO',
+			shortest: 'Menores Primeiro',
+			priority: 'Prioridade',
+			lottery: 'Loteria',
+			roundrobin: 'Round-Robin'
+		};
+
+		itemTabela += gerarSubItens(nomeDosAlgoritmos, Processo);
+
 		$("#novo-processo").append(itemTabela);
 	}
 
+	var gerarSubItens = function(nomeDosAlgoritmos, p) {
+		var subItens = "<tr id=\"processo-"+ p.id +"\"><td colspan='7'><table><thread><th>Algoritmo</th><th>Running</th><th>Tam. Processo</th>";
+		subItens += "<th>Tempo De Inicio</th><th>Tempo Final</th><th>T. execução</th></thread><tbody>";
+
+		for (var k in nomeDosAlgoritmos) {
+			subItens += "<tr class=\""+ k +"\"><td class=\"nome-algoritmo\">" + nomeDosAlgoritmos[k] + "</td>";
+			subItens += "<td class=\"running\"></td><td class=\"tamanho\">" + p.tamanho + "</td>";
+			subItens += "<td class=\"tempo-inicio\">-</td><td class=\"tempo-final\">-</td><td class=\"tempo-total\">-</td></tr>";
+		}
+
+		subItens += "</tbody></table></td></tr>";
+		return subItens;
+
+	}
+
+
 	$('#run').click(function(event) {
-		var config = configurarExecucao();
-		executarEscalonamento(config);
+		configurarExecucao();
+		executarEscalonamento();
 	});
 
-	function configurarExecucao() {
+	var configurarExecucao = function() {
 
 		var clockProcessador = $('#ciclo-segundo').val();
 		var algoritmo = $('#alg-escalonamento').val();
+		var quantum = $('#quantum').val();
 
 		if (clockProcessador > 0) {
-			var config = {
-				clock: clockProcessador,
-				algoritmo: algoritmo
-			}
-			$('.config').attr('disabled', 'disabled');
+			config.clock = clockProcessador;
+			config.algoritmo = algoritmo;
+			config.quantum = quantum;
 
-			return config;
+			$('.config').attr('disabled', 'disabled');
+			inicializaBufferAuxiliar();
 		}
+
 		return false;
 	}
 
 
-	function executarEscalonamento(config) {
-
-		var pTemp = processos;
-		
-		setInterval(function() {
-
-			var resultado = temProcessosParaExecutar(pTemp);
-			console.log(resultado);
-			if (resultado) {
-				pTemp = diminuiClockDeUmProcesso(pTemp,config.clock);
-				console.log(pTemp);
-			}
-
-		}, 1000);	
+	var executarEscalonamento = function() {
+		if (config.clock > 0 && config.algoritmo.length > 0) {
+			var pTemp = processos;
+			engine;
+		}
 	}
 
-	function temProcessosParaExecutar(procTemp) {
+
+	var engine = setInterval(function() {
+		var fn = algoritmos[config.algoritmo];
+		
+		if (typeof fn === "function") { 
+			fn();
+			time += 1;
+		}
+
+	}, 1000);
+
+
+	var temProcessosParaExecutar = function(procTemp) {
 		var numeroDeProcessos = procTemp.length;
 
 		for (i = 0; i < numeroDeProcessos; i++) {
@@ -90,15 +121,159 @@ $(document).ready(function() {
 		return false;
 	}
 	
-	function diminuiClockDeUmProcesso(p, clock) {
-		var size = p.length;
-
-		for (i = 0; i < size; i++) {
-			if (p[i].tamanho > 0) {
-				p[i].tamanho -= clock;
-				return p;
-			}
-		}
-		return p;
+	var diminuiClockDoProcesso = function(p) {
+		p.tamanho = p.tamanho < config.clock ? 0 : p.tamanho - config.clock;
 	}
+
+
+	var inicializaBufferAuxiliar = function() {
+		for (var k in bufferProcessos) {
+		    if (typeof bufferProcessos[k] !== 'function') {
+		    	bufferProcessos[k] = $.extend(true, [], processos);
+		    }
+		}
+	}
+
+	var atualizarTamanhoDeProcessoNaTabela = function(processo, algoritmo) {
+
+		var elemento = $("#processo-" + processo.id).find('.'+algoritmo);
+		
+		elemento.find('.tamanho').text(processo.tamanho);
+
+		var tempoInicio = elemento.find('.tempo-inicio').text();
+		if (tempoInicio == '-')  {
+			elemento.find('.tempo-inicio').text(time);
+			tempoInicio = time;
+		}
+
+		elemento.find('.tempo-final').text(time+1);
+		elemento.find('.tempo-total').text(time+1 - tempoInicio);
+	}
+
+
+	var bufferProcessos = {
+		fifo: [],
+		shortest: [],
+		priority: [],
+		lottery: [],
+		roundrobin: []
+	}
+
+	var comparaTamanho = function(a, b) {
+
+		if (parseInt(a.tamanho) < parseInt(b.tamanho))
+			return -1;
+		if (parseInt(a.tamanho) > parseInt(b.tamanho))
+			return 1;
+		return 0;
+	}
+
+	var comparaPrioridade = function(a, b) {
+
+		if (parseInt(a.prioridade) > parseInt(b.prioridade))
+			return -1;
+		if (parseInt(a.prioridade) < parseInt(b.prioridade))
+			return 1;
+		return 0;
+	}
+
+
+	var algoritmos = {
+		fifo: function() {
+
+			var processoEscolhido;
+
+			for (i = 0; i < bufferProcessos.fifo.length; i++) {
+
+				if ( bufferProcessos.fifo[i].tamanho > 0) {
+					processoEscolhido = i;
+					i = bufferProcessos.fifo.length;
+				} else {
+					processoEscolhido = -1;
+				}
+			}
+
+			if (processoEscolhido == -1) {
+				clearInterval(engine);
+				alert("execução finalizada");
+			} else {
+
+				diminuiClockDoProcesso(bufferProcessos.fifo[processoEscolhido]);
+				atualizarTamanhoDeProcessoNaTabela(bufferProcessos.fifo[processoEscolhido], 'fifo');
+
+			}
+		},
+		shortest: function() {
+			if (time == 0) {
+				//console.log(bufferProcessos.shortest);
+				bufferProcessos.shortest.sort(comparaTamanho);
+				//console.log(bufferProcessos.shortest);
+			}
+
+			var processoEscolhido;
+
+			for (i = 0; i < bufferProcessos.shortest.length; i++) {
+
+				if ( bufferProcessos.shortest[i].tamanho > 0) {
+					processoEscolhido = i;
+					i = bufferProcessos.shortest.length;
+				} else {
+					processoEscolhido = -1;
+				}
+			}
+
+			if (processoEscolhido == -1) {
+				clearInterval(engine);
+				alert("execução finalizada");
+			} else {
+
+				diminuiClockDoProcesso(bufferProcessos.shortest[processoEscolhido]);
+				atualizarTamanhoDeProcessoNaTabela(bufferProcessos.shortest[processoEscolhido], 'shortest');
+
+			}
+		},
+		priority: function() {
+			if (time == 0) {
+				//console.log(bufferProcessos.shortest);
+				bufferProcessos.priority.sort(comparaPrioridade);
+				//console.log(bufferProcessos.priority);
+			}
+
+			var processoEscolhido;
+
+			for (i = 0; i < bufferProcessos.priority.length; i++) {
+
+				if ( bufferProcessos.priority[i].tamanho > 0) {
+					processoEscolhido = i;
+					i = bufferProcessos.priority.length;
+				} else {
+					processoEscolhido = -1;
+				}
+			}
+
+			if (processoEscolhido == -1) {
+				clearInterval(engine);
+				alert("execução finalizada");
+			} else {
+
+				diminuiClockDoProcesso(bufferProcessos.priority[processoEscolhido]);
+				atualizarTamanhoDeProcessoNaTabela(bufferProcessos.priority[processoEscolhido], 'priority');
+
+			}
+		},
+		lottery: function() {
+			console.log('lottery');
+		},
+		roundrobin: function() {
+			console.log('roundrobin');
+		},
+		all: function() {
+			algoritmos.fifo();
+			algoritmos.shortest();
+			algoritmos.priority();
+			algoritmos.lottery();
+			algoritmos.roundrobin();
+		}
+	}
+
 });

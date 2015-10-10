@@ -3,6 +3,13 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Scheduling</title>
+	<style>
+		table, td, tr {
+			border: 1px solid #000;
+		}
+		
+
+	</style>
 
 </head>
 <body>
@@ -31,13 +38,15 @@
 		<form id="formulario-processador">
 			<label for="ciclo-segundo">Ciclos por segundo</label>
 			<input type="number" class="config" id="ciclo-segundo"><br>
+			<label for="quantum">Quantum em segundos (usado no RR)</label>
+			<input type="number" class="config" id="quantum"><br>
 			<label for="alg-escalonamento">Algoritmos de Escalonamento</label>
 			<select id="alg-escalonamento" class="config">
 				<option value="fifo">First-in First-out</option>
-				<option value="sjf">Shortest Job First</option>
-				<option value="srt">Shortest Remaining Time</option>
-				<option value="loteria">Algoritmo Loteria</option>
-				<option value="rr">Round-Robin</option>
+				<option value="shortest">Shortest Job First</option>
+				<option value="priority">Priority</option>
+				<option value="lottery">Lottery</option>
+				<option value="roundrobin">Round-Robin</option>
 				<option value="all">Todos</option>
 			</select>
 			<br>
@@ -54,16 +63,12 @@
 		<table>
 			<thead>
 				<tr>
-					<th>R</th>
 					<th>#</th>
 					<th>Nome do Processo</th>
 					<th>PID</th>
 					<th>Tam. Processo</th>
 					<th>Prioridade</th>
 					<th>Inicia em</th>
-					<th>T. execução</th>
-					<th>T. inicial real</th>
-					<th>T. final</th>
 					<th>Ações</th>
 				</tr>
 			</thead>	
@@ -73,11 +78,26 @@
 		</table>
 	</div>
 
-	
+
+	<div id="teste"></div>	
 
 
 
 	<script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
 	<script type="text/javascript" src="js/scheduling.js"></script>
+</body>
+</html
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	
 </body>
 </html>

@@ -177,6 +177,47 @@ $(document).ready(function() {
 		return 0;
 	}
 
+	var processosAleatorios = [];
+	var processoAleatorioEscolhido = -1;
+
+	var gerarVetorDeProcessosAleatorios = function() {
+		for (p in bufferProcessos.lottery) {
+			processo = bufferProcessos.lottery[p];
+			for (i = 0; i < parseInt(processo.prioridade); i++) {
+				processosAleatorios.push(processo.id);
+			}
+		}
+	}
+
+	var selecionaUmProcessoAleatorio = function() {
+		var size = processosAleatorios.length;
+		i = Math.floor(Math.random() * (size - 1));
+		console.log(i);
+
+		PID = processosAleatorios[i];
+
+		for (p in bufferProcessos.lottery) {
+			if (bufferProcessos.lottery[p].id == PID) {
+				return bufferProcessos.lottery[p];
+			}
+		}
+
+	}
+
+	var removerProcesso = function(processo) {
+
+		console.log(processosAleatorios);
+		console.log(processo);
+
+		var size = processosAleatorios.length - 1;
+		for (i = size; i >= 0; i--) {
+			if (processosAleatorios[i] == processo.id) {
+				processosAleatorios.splice(i, 1);
+			}
+		}
+
+		console.log(processosAleatorios);
+	}
 
 	var algoritmos = {
 		fifo: function() {
@@ -262,7 +303,29 @@ $(document).ready(function() {
 			}
 		},
 		lottery: function() {
-			console.log('lottery');
+
+			if (time == 0) {
+				gerarVetorDeProcessosAleatorios();
+				console.log(processosAleatorios);
+			}
+
+			if (processoAleatorioEscolhido == -1) {
+				processoAleatorioEscolhido = selecionaUmProcessoAleatorio();
+			}
+
+			diminuiClockDoProcesso(processoAleatorioEscolhido);
+			atualizarTamanhoDeProcessoNaTabela(processoAleatorioEscolhido, 'lottery');
+
+			if (processoAleatorioEscolhido.tamanho == 0) {
+				removerProcesso(processoAleatorioEscolhido);
+			}
+
+			processoAleatorioEscolhido = -1;
+
+			if (processosAleatorios.length == 0) {
+				clearInterval(engine);
+				alert("execução finalizada");
+			}
 		},
 		roundrobin: function() {
 			console.log('roundrobin');

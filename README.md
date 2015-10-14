@@ -15,6 +15,15 @@ O algoritmo funciona da seguinte maneira:
 2. Execute o processo Pi durante um Quantum;
 3. Após a execução, escalone para o **próximo processo**, volte para o passo 2;
 
+Para desenvolver o algoritmo, vocês devem implementar a função:
+
+```javascript
+	roundrobin: function() {
+		console.log('roundrobin');
+	},
+```
+
+Funçōes auxiliares podem ser necessárias.
 
 ##Observaçōes:
 
@@ -28,4 +37,5 @@ O algoritmo funciona da seguinte maneira:
 4. O algoritmo implementado valerá 4 pontos no trabalho e o CSS 6 pontos.
 
 5. Quaisquer dúvidas devem ser enviadas via email (rjsandim@gmail.com) ou WhatsApp.
+
 
